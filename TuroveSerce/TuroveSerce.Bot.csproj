@@ -7,4 +7,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Google.Apis.Sheets.v4" Version="1.68.0.3568" />
+    <PackageReference Include="Telegram.Bot" Version="19.0.0" />
+  </ItemGroup>
+
 </Project>
