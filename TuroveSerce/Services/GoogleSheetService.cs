@@ -24,16 +24,9 @@ namespace TuroveSerce.Bot.Services
 
 		private SheetsService InitializeSheetsService()
 		{
-			var credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
-				new ClientSecrets()
-				{
-					ClientId = SD.ClientId,
-					ClientSecret = SD.ClientSecrets
-				},
-				Scopes,
-				"user",
-				CancellationToken.None,
-				new FileDataStore("token.json", true)).Result;
+			string serviceAccountJson = Environment.GetEnvironmentVariable("GOOGLE_SERVICE_ACCOUNT_KEY");
+			var credential = GoogleCredential.FromJson(serviceAccountJson)
+				.CreateScoped(SheetsService.Scope.Spreadsheets);
 
 			return new SheetsService(new BaseClientService.Initializer()
 			{
