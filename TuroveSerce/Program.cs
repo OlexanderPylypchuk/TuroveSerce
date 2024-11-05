@@ -8,6 +8,7 @@ using Telegram.Bot.Requests;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
+using TuroveSerce.Bot.Services;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace TuroveSerce.Bot
@@ -17,9 +18,11 @@ namespace TuroveSerce.Bot
 		private static ITelegramBotClient _botClient;
 		static ReplyKeyboardMarkup replyKeyboardMarkup;
 		private static ReceiverOptions _receiverOptions;
+		private static GoogleSheetService _googleSheetService;
 
 		static async Task Main()
 		{
+			_googleSheetService = new GoogleSheetService();
 			_botClient = new TelegramBotClient(SD.Token);
 			_receiverOptions = new ReceiverOptions
 			{
@@ -66,22 +69,40 @@ namespace TuroveSerce.Bot
 
 		private async static Task AdminResponce(Update update)
 		{
-			string chatId;
-			if(update.Message.ReplyToMessage == null)
+			if (update.Message.ReplyToMessage!=null 
+				&& update.Message.ReplyToMessage.From.Username == SD.BotName)
 			{
-				await _botClient.SendTextMessageAsync(SD.GroupChatId, "Оберіть повідомлення, до якого звертаєтесь");
-				return;
+				string chatId;
+				if (update.Message.ReplyToMessage == null)
+				{
+					await _botClient.SendTextMessageAsync(SD.GroupChatId, "Оберіть повідомлення, до якого звертаєтесь");
+					return;
+				}
+				if (update.Message.ReplyToMessage.Text == null)
+				{
+					chatId = update.Message.ReplyToMessage.Caption.Split('#').Last();
+				}
+				else
+				{
+					chatId = update.Message.ReplyToMessage.Text.Split('#').Last();
+				}
+				if (update.Message.Text == "Підтверджено")
+				{
+					string caption = update.Message.ReplyToMessage.Caption;
+					string firstName = ExtractDetail(caption, @"(?<=Ім'я:\s)(.*?)(?=\n|$)");
+					string lastName = ExtractDetail(caption, @"(?<=Прізвище:\s)(.*?)(?=\n|$)");
+					string address = ExtractDetail(caption, @"(?<=Адреса:\s)(.*?)(?=\n|$)");
+					string phoneNumber = ExtractDetail(caption, @"(?<=Номер телефону:\s)(\+?380\d{9}|0\d{9})(?=\n|$)");
+					string item = ExtractDetail(caption, @"(?<=Товар:\s)(.*?)(?=\n|$)");
+
+					_googleSheetService.AppendOrder(SD.SheetId, SD.SheetName, firstName, lastName, address, phoneNumber, item, chatId);
+					await _botClient.SendTextMessageAsync(chatId, "Замовлення підтверджено!", replyMarkup: replyKeyboardMarkup);
+					await _botClient.SendTextMessageAsync(SD.GroupChatId, "Опрацьовано");
+					return;
+				}
+				await _botClient.SendTextMessageAsync(chatId, update.Message.Text, replyMarkup: replyKeyboardMarkup);
+				await _botClient.SendTextMessageAsync(SD.GroupChatId, "Повідомлення надіслано");
 			}
-			if(update.Message.ReplyToMessage.Text == null)
-			{
-				chatId = update.Message.ReplyToMessage.Caption.Split('#').Last();
-			}
-			else
-			{
-				chatId = update.Message.ReplyToMessage.Text.Split('#').Last();
-			}
-			await _botClient.SendTextMessageAsync(chatId, update.Message.Text, replyMarkup: replyKeyboardMarkup);
-			await _botClient.SendTextMessageAsync(SD.GroupChatId, "Повідомлення надіслано");
 		}
 
 		private async static Task UserRequest(Update update, ChatId chatId)
@@ -155,8 +176,9 @@ namespace TuroveSerce.Bot
 			string message = $"Замовлення отримано:\n" +
 							 $"Ім'я: {firstName}\n" +
 							 $"Прізвище: {lastName}\n" +
-							 $"Адреса доставки: {address}\n" +
+							 $"Адреса: {address}\n" +
 							 $"Номер телефону: {phoneNumber}\n" +
+							 $"Товар: {item}\n" +
 							 $"@{update.Message.Chat.Username}, {update.Message.Chat.FirstName} {update.Message.Chat.LastName} #{update.Message.Chat.Id}";
 
 			await _botClient.SendPhotoAsync(SD.GroupChatId, InputFile.FromFileId(paymentImage.FileId), caption: message);
