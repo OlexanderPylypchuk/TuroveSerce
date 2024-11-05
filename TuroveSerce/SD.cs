@@ -10,7 +10,7 @@ namespace TuroveSerce.Bot
 	{
 		public const string Token = "7936846219:AAGD1rBQoMttPuMQK0ECSF_w6dT06FGAkrk";
 		public const string BotName = "turove_serce_bot";
-		public const long GroupChatId = -4552060748;
+		public const long GroupChatId = -1002271076234;
 
 		public const string ApplicationName = "Turove Serce";
 		public const string SheetName = "Турове Серце";
