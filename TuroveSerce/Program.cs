@@ -1,15 +1,11 @@
-﻿using System.Net.Http.Headers;
-using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
-using Telegram.Bot.Requests;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using TuroveSerce.Bot.Services;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace TuroveSerce.Bot
 {
@@ -138,6 +134,7 @@ namespace TuroveSerce.Bot
 					await OrderRequest(update, chatId);
 					return;
 				}
+
 				var image = update.Message.Photo.Last();
 				string message = $"{update.Message.Caption}\n" +
 					$"@{update.Message.Chat.Username}, {update.Message.Chat.FirstName} {update.Message.Chat.LastName} #{update.Message.Chat.Id}";
