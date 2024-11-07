@@ -35,7 +35,7 @@ namespace TuroveSerce.Bot.Services
 			});
 		}
 
-		public async Task AppendOrder(string spreadsheetId, string item,int count, string deliveryMethod, string city, string phoneNumber, string firstName, string lastName, string chatId)
+		public async Task AppendOrder(string spreadsheetId, string item, string deliveryMethod, string city, string phoneNumber, string firstName, string lastName, string count, string chatId)
 		{
 			var orderDetails = new List<object>
 			{
@@ -46,11 +46,12 @@ namespace TuroveSerce.Bot.Services
 				phoneNumber,
 				firstName,
 				lastName,
+				count,
 				chatId
 			};
 			var valueRange = new ValueRange { Values = new List<IList<object>> { orderDetails } };
 
-			var appendRequest = _sheetsService.Spreadsheets.Values.Append(valueRange, spreadsheetId, $"!A:H");
+			var appendRequest = _sheetsService.Spreadsheets.Values.Append(valueRange, spreadsheetId, $"!A:I");
 			appendRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.USERENTERED;
 
 			await appendRequest.ExecuteAsync();
