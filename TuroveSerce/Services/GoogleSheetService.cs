@@ -35,16 +35,17 @@ namespace TuroveSerce.Bot.Services
 			});
 		}
 
-		public void AppendOrder(string spreadsheetId, string sheetName, string firstName, string lastName, string address, string phoneNumber, string item, string chatId)
+		public async Task AppendOrder(string spreadsheetId, string item, string deliveryMethod, string city, string phoneNumber, string firstName, string lastName, string chatId)
 		{
 			var orderDetails = new List<object>
 			{
 				DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+				item,
+				deliveryMethod,
+				city,
+				phoneNumber,
 				firstName,
 				lastName,
-				address,
-				phoneNumber,
-				item,
 				chatId
 			};
 			var valueRange = new ValueRange { Values = new List<IList<object>> { orderDetails } };
@@ -52,7 +53,7 @@ namespace TuroveSerce.Bot.Services
 			var appendRequest = _sheetsService.Spreadsheets.Values.Append(valueRange, spreadsheetId, $"!A:H");
 			appendRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.USERENTERED;
 
-			appendRequest.Execute();
+			await appendRequest.ExecuteAsync();
 			Console.WriteLine("Order appended successfully to Google Sheet.");
 		}
 	}

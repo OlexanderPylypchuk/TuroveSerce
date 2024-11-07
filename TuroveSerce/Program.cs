@@ -18,7 +18,7 @@ namespace TuroveSerce.Bot
 
 		static async Task Main()
 		{
-			_googleSheetService = new GoogleSheetService();
+			//_googleSheetService = new GoogleSheetService();
 			_botClient = new TelegramBotClient(SD.Token);
 			_receiverOptions = new ReceiverOptions
 			{
@@ -85,13 +85,14 @@ namespace TuroveSerce.Bot
 				if (update.Message.Text == "Підтверджено")
 				{
 					string caption = update.Message.ReplyToMessage.Caption;
+					string item = ExtractDetail(caption, @"(?<=Назва товару:\s)(.*?)(?=\n|$)");
+					string deliveryMethod = ExtractDetail(caption, @"(?=Місце отримання:\s)(.*?)(?=\n|$)");
+					string city = ExtractDetail(caption, @"(?<=Населений пункт:\s)(.*?)(?=\n|$)");
+					string phoneNumber = ExtractDetail(caption, @"(?<=Номер телефону:\s)(\+?380\d{9}|0\d{9})(?=\n|$)");
 					string firstName = ExtractDetail(caption, @"(?<=Ім'я:\s)(.*?)(?=\n|$)");
 					string lastName = ExtractDetail(caption, @"(?<=Прізвище:\s)(.*?)(?=\n|$)");
-					string address = ExtractDetail(caption, @"(?<=Адреса:\s)(.*?)(?=\n|$)");
-					string phoneNumber = ExtractDetail(caption, @"(?<=Номер телефону:\s)(\+?380\d{9}|0\d{9})(?=\n|$)");
-					string item = ExtractDetail(caption, @"(?<=Товар:\s)(.*?)(?=\n|$)");
 
-					_googleSheetService.AppendOrder(SD.SheetId, SD.SheetName, firstName, lastName, address, phoneNumber, item, chatId);
+					await _googleSheetService.AppendOrder(SD.SheetId, item, deliveryMethod, city, phoneNumber, firstName, lastName, chatId);
 					await _botClient.SendTextMessageAsync(chatId, "Замовлення підтверджено!", replyMarkup: replyKeyboardMarkup);
 					await _botClient.SendTextMessageAsync(SD.GroupChatId, "Опрацьовано");
 					return;
@@ -107,18 +108,21 @@ namespace TuroveSerce.Bot
 			{
 				if(update.Message.Text == "Оформити замовлення")
 				{
-					await _botClient.SendTextMessageAsync(chatId, "Що б оформити замовлення необхідно: \n1. Надіслати зображення про оплату\n" +
-						"2. В описі додати слово 'Замовлення' \n3. Вказати у тому ж повідомленні свою контактну інформацію у форматі:\n " +
-						"Ім'я: [Ваше ім'я]\n" +
-						"Прізвище: [Ваше прізвище]\n" +
-						"Адреса: [Ваша адреса, або адреса нової пошти]\n" +
-						"Номер телефону: [Ваш номер телефону]\n" +
-						"Товар: [Назва товару]", replyToMessageId:update.Message.MessageId);
+					await _botClient.SendTextMessageAsync(chatId, "Що б оформити замовлення необхідно:\n"+
+						"1.Надіслати зображення про оплату;\n"+
+						"2.В описі додати без лапок КЛЮЧ - СЛОВО «Замовлення»;\n"+
+						"3.Вказати у тому ж повідомленні свою контактну інформацію у форматі:", replyToMessageId:update.Message.MessageId);
+					await _botClient.SendTextMessageAsync(chatId, "Назва товару: (назва позиції товару)\n" +
+						"Місце отримання: (відділення, поштомат, адреса з вказанням номера)\n" +
+						"Населений пункт: (назва міста/села/смт, при необхідності вказанням області та району)\n" +
+						"Номер телефону: у такому форматі (0980000000)\n" +
+						"Ім'я: (Ваше імя)\n" +
+						"Прізвище: (Ваше Прізвище)");
 					return;
 				}
 				if(update.Message.Text == "/start")
 				{
-					await _botClient.SendTextMessageAsync(chatId, "Слава Ісусу Христу! Цей бот допоможе оформити замовлення та дізнатись необхідну інформацію! Що б дізнатись більше про товари, що Вас цікавлять, надішліть повідомлення з запитанням.", replyToMessageId: update.Message.MessageId, replyMarkup: replyKeyboardMarkup);
+					await _botClient.SendTextMessageAsync(chatId, "Слава Ісусу Христу!\nЦей бот допоможе оформити замовлення та дізнатись необхідну інформацію. Для оформлення замовлення натисність кнопку «Оформити замовлення».\nТакож цей бот працює як зворотній звʼязок з адміністрацією.", replyToMessageId: update.Message.MessageId, replyMarkup: replyKeyboardMarkup);
 					return;
 				}
 
@@ -156,13 +160,16 @@ namespace TuroveSerce.Bot
 			}
 
 			string caption = update.Message.Caption;
+			string deliveryMethod = ExtractDetail(caption, @"(?=Місце отримання:\s)(.*?)(?=\n|$)");
 			string firstName = ExtractDetail(caption, @"(?<=Ім'я:\s)(.*?)(?=\n|$)");
 			string lastName = ExtractDetail(caption, @"(?<=Прізвище:\s)(.*?)(?=\n|$)");
-			string address = ExtractDetail(caption, @"(?<=Адреса:\s)(.*?)(?=\n|$)");
+			string city = ExtractDetail(caption, @"(?<=Населений пункт:\s)(.*?)(?=\n|$)");
 			string phoneNumber = ExtractDetail(caption, @"(?<=Номер телефону:\s)(\+?380\d{9}|0\d{9})(?=\n|$)");
-			string item = ExtractDetail(caption, @"(?<=Товар:\s)(.*?)(?=\n|$)");
+			string item = ExtractDetail(caption, @"(?<=Назва товару:\s)(.*?)(?=\n|$)");
 
-			if (string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName) || string.IsNullOrEmpty(address) || string.IsNullOrEmpty(phoneNumber) || string.IsNullOrEmpty(item))
+			if (string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName)
+				|| string.IsNullOrEmpty(city) || string.IsNullOrEmpty(phoneNumber)
+				|| string.IsNullOrEmpty(item) || string.IsNullOrEmpty(deliveryMethod))
 			{
 				await _botClient.SendTextMessageAsync(chatId, "Будь ласка, переконайтеся, що опис містить ім'я, прізвище, адресу доставки, номер телефону та назву товару.", replyMarkup: replyKeyboardMarkup);
 				return;
@@ -171,11 +178,12 @@ namespace TuroveSerce.Bot
 			var paymentImage = update.Message.Photo.Last();
 
 			string message = $"Замовлення отримано:\n" +
+							 $"Назва товару: {item}\n" +
+							 $"Місце отримання: {deliveryMethod}\n" +
+							 $"Населений пункт: {city}\n" +
+							 $"Номер телефону: {phoneNumber}\n" +
 							 $"Ім'я: {firstName}\n" +
 							 $"Прізвище: {lastName}\n" +
-							 $"Адреса: {address}\n" +
-							 $"Номер телефону: {phoneNumber}\n" +
-							 $"Товар: {item}\n" +
 							 $"@{update.Message.Chat.Username}, {update.Message.Chat.FirstName} {update.Message.Chat.LastName} #{update.Message.Chat.Id}";
 
 			await _botClient.SendPhotoAsync(SD.GroupChatId, InputFile.FromFileId(paymentImage.FileId), caption: message);
