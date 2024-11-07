@@ -35,7 +35,7 @@ namespace TuroveSerce.Bot.Services
 			});
 		}
 
-		public async Task AppendOrder(string spreadsheetId, string item, string deliveryMethod, string city, string phoneNumber, string firstName, string lastName, string chatId)
+		public async Task AppendOrder(string spreadsheetId, string item,int count, string deliveryMethod, string city, string phoneNumber, string firstName, string lastName, string chatId)
 		{
 			var orderDetails = new List<object>
 			{
