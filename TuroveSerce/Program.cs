@@ -18,7 +18,7 @@ namespace TuroveSerce.Bot
 
 		static async Task Main()
 		{
-			//_googleSheetService = new GoogleSheetService();
+			_googleSheetService = new GoogleSheetService();
 			_botClient = new TelegramBotClient(SD.Token);
 			_receiverOptions = new ReceiverOptions
 			{
