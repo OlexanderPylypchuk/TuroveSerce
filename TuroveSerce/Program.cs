@@ -86,7 +86,7 @@ namespace TuroveSerce.Bot
 				{
 					string caption = update.Message.ReplyToMessage.Caption;
 					string item = ExtractDetail(caption, @"(?<=Назва товару:\s)(.*?)(?=\n|$)");
-					string deliveryMethod = ExtractDetail(caption, @"(?=Місце отримання:\s)(.*?)(?=\n|$)");
+					string deliveryMethod = ExtractDetail(caption, @"(?<=Місце отримання:\s)(.*?)(?=\n|$)");
 					string city = ExtractDetail(caption, @"(?<=Населений пункт:\s)(.*?)(?=\n|$)");
 					string phoneNumber = ExtractDetail(caption, @"(?<=Номер телефону:\s)(\+?380\d{9}|0\d{9})(?=\n|$)");
 					string firstName = ExtractDetail(caption, @"(?<=Ім'я:\s)(.*?)(?=\n|$)");
@@ -160,7 +160,7 @@ namespace TuroveSerce.Bot
 			}
 
 			string caption = update.Message.Caption;
-			string deliveryMethod = ExtractDetail(caption, @"(?=Місце отримання:\s)(.*?)(?=\n|$)");
+			string deliveryMethod = ExtractDetail(caption, @"(?<=Місце отримання:\s)(.*?)(?=\n|$)");
 			string firstName = ExtractDetail(caption, @"(?<=Ім'я:\s)(.*?)(?=\n|$)");
 			string lastName = ExtractDetail(caption, @"(?<=Прізвище:\s)(.*?)(?=\n|$)");
 			string city = ExtractDetail(caption, @"(?<=Населений пункт:\s)(.*?)(?=\n|$)");
