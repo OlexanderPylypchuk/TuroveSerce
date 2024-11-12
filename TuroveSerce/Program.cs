@@ -13,6 +13,7 @@ namespace TuroveSerce.Bot
 	{
 		private static ITelegramBotClient _botClient;
 		static ReplyKeyboardMarkup replyKeyboardMarkup;
+		static ReplyKeyboardMarkup orderKeyboardMarkup;
 		private static ReceiverOptions _receiverOptions;
 		private static GoogleSheetService _googleSheetService;
 
@@ -33,6 +34,13 @@ namespace TuroveSerce.Bot
 			replyKeyboardMarkup = new(new[]
 			{
 				new KeyboardButton("Оформити замовлення")
+			})
+			{
+				ResizeKeyboard = true
+			};
+			orderKeyboardMarkup = new(new[]
+			{
+				new KeyboardButton("Приклад оформлення")
 			})
 			{
 				ResizeKeyboard = true
@@ -110,7 +118,7 @@ namespace TuroveSerce.Bot
 				if (update.Message.Text == "Оформити замовлення")
 				{
 					await _botClient.SendTextMessageAsync(chatId, "Що б оформити замовлення необхідно:\n" +
-						"1.Надіслати зображення про оплату;\n" +
+						"1.Надіслати зображення про оплату за реквізитами:діма-гей-їбе-людей;\n" +
 						"2.В описі додати без лапок КЛЮЧ - СЛОВО «Замовлення»;\n" +
 						"3.Вказати у тому ж повідомленні свою контактну інформацію у форматі:", replyToMessageId: update.Message.MessageId);
 					await _botClient.SendTextMessageAsync(chatId, "Назва товару: (назва позиції товару)\n" +
@@ -119,7 +127,7 @@ namespace TuroveSerce.Bot
 						"Номер телефону: у такому форматі (0980000000)\n" +
 						"Ім'я: (Ваше імя)\n" +
 						"Прізвище: (Ваше Прізвище)\n"+
-						"Кількість товару: (Кількість товару в шт)");
+						"Кількість товару: (Кількість товару в шт)", replyMarkup:new ReplyKeyboardRemove());
 					return;
 				}
 				if (update.Message.Text == "/start")
@@ -127,7 +135,18 @@ namespace TuroveSerce.Bot
 					await _botClient.SendTextMessageAsync(chatId, "Слава Ісусу Христу!\nЦей бот допоможе оформити замовлення та дізнатись необхідну інформацію. Для оформлення замовлення натисність кнопку «Оформити замовлення».\nТакож цей бот працює як зворотній звʼязок з адміністрацією.", replyToMessageId: update.Message.MessageId, replyMarkup: replyKeyboardMarkup);
 					return;
 				}
-
+				if(update.Message.Text == "Приклад оформлення")
+				{
+					await _botClient.SendPhotoAsync(chatId, InputFile.FromUri(SD.ExampleImageUri),caption:"Замовлення\r\n" +
+						"Назва товару: Aequo animo\r\n" +
+						"Місце отримання: Поштомат 37795\r\n" +
+						"Населений пункт: Бровари, Київська область\r\n" +
+						"Номер телефону: 0980000000\r\n" +
+						"Ім'я: Ісус\r\n" +
+						"Прізвище: Христос\r\n" +
+						"Кількість товару: 1", replyMarkup: new ReplyKeyboardRemove());
+					return;
+				}
 				string message = $"{update.Message.Text}\n" +
 					$"@{update.Message.Chat.Username}, {update.Message.Chat.FirstName} {update.Message.Chat.LastName} #{update.Message.Chat.Id}";
 				await _botClient.SendTextMessageAsync(SD.GroupChatId, message);
@@ -175,7 +194,7 @@ namespace TuroveSerce.Bot
 				|| string.IsNullOrEmpty(item) || string.IsNullOrEmpty(deliveryMethod)
 				|| string.IsNullOrEmpty(count))
 			{
-				await _botClient.SendTextMessageAsync(chatId, "Будь ласка, переконайтеся, дані введені правильно, та спробуйте знову.", replyMarkup: replyKeyboardMarkup);
+				await _botClient.SendTextMessageAsync(chatId, "Будь ласка, переконайтеся, дані введені правильно, та спробуйте знову. Якщо у вас виникають проблеми, натисніть кнопку, що б отримати зразок", replyMarkup: orderKeyboardMarkup);
 				return;
 			}
 
