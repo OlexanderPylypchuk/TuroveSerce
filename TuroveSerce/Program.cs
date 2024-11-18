@@ -118,7 +118,7 @@ namespace TuroveSerce.Bot
 				if (update.Message.Text == "Оформити замовлення")
 				{
 					await _botClient.SendTextMessageAsync(chatId, "Що б оформити замовлення необхідно:\n" +
-						"1.Надіслати зображення про оплату за реквізитами:діма-гей-їбе-людей;\n" +
+						"1.Надіслати зображення про оплату за посиланням: https://send.monobank.ua/jar/33dEGgTsLr або за реквізитами 4441 1111 2796 9008;\n" +
 						"2.В описі додати без лапок КЛЮЧ - СЛОВО «Замовлення»;\n" +
 						"3.Вказати у тому ж повідомленні свою контактну інформацію у форматі:", replyToMessageId: update.Message.MessageId);
 					await _botClient.SendTextMessageAsync(chatId, "Назва товару: (назва позиції товару)\n" +
