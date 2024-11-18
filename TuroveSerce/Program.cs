@@ -98,7 +98,7 @@ namespace TuroveSerce.Bot
 					string deliveryMethod = ExtractDetail(caption, @"(?<=Місце отримання:\s)(.*?)(?=\n|$)");
 					string city = ExtractDetail(caption, @"(?<=Населений пункт:\s)(.*?)(?=\n|$)");
 					string phoneNumber = ExtractDetail(caption, @"(?<=Номер телефону:\s)(0\d{9})(?=\n|$)");
-					string firstName = ExtractDetail(caption, @"(?<=Ім'я:\s)(.*?)(?=\n|$)");
+					string firstName = ExtractDetail(caption, @"(?<=Ім('|’)я:\s)(.*?)(?=\n|$)");
 					string lastName = ExtractDetail(caption, @"(?<=Прізвище:\s)(.*?)(?=\n|$)");
 
 					await _googleSheetService.AppendOrder(SD.SheetId, item, deliveryMethod, city, phoneNumber, firstName, lastName, count, chatId);
@@ -183,7 +183,7 @@ namespace TuroveSerce.Bot
 			string caption = update.Message.Caption;
 			string deliveryMethod = ExtractDetail(caption, @"(?<=Місце отримання:\s)(.*?)(?=\n|$)");
 			string count = ExtractDetail(caption, @"(?<=Кількість товару:\s)(.*?)(?=\n|$)");
-			string firstName = ExtractDetail(caption, @"(?<=Ім'я:\s)(.*?)(?=\n|$)");
+			string firstName = ExtractDetail(caption, @"(?<=Ім('|’)я:\s)(.*?)(?=\n|$)");
 			string lastName = ExtractDetail(caption, @"(?<=Прізвище:\s)(.*?)(?=\n|$)");
 			string city = ExtractDetail(caption, @"(?<=Населений пункт:\s)(.*?)(?=\n|$)");
 			string phoneNumber = ExtractDetail(caption, @"(?<=Номер телефону:\s)(0\d{9})(?=\n|$)");
