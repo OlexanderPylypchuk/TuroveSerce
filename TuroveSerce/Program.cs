@@ -101,7 +101,19 @@ namespace TuroveSerce.Bot
 					string firstName = ExtractDetail(caption, @"(?<=Ім('|’)я:\s)(.*?)(?=\n|$)");
 					string lastName = ExtractDetail(caption, @"(?<=Прізвище:\s)(.*?)(?=\n|$)");
 
-					await _googleSheetService.AppendOrder(SD.SheetId, item, deliveryMethod, city, phoneNumber, firstName, lastName, count, chatId);
+					Order order = new Order()
+					{ 
+						Item = item,
+						DeliveryMethod = deliveryMethod,
+						City = city,
+						PhoneNumber = phoneNumber,
+						FirstName = firstName,
+						LastName = lastName,
+						Count = count,
+						ChatId = chatId
+					};
+
+					await _googleSheetService.AppendOrder(SD.SheetId, order);
 					await _botClient.SendTextMessageAsync(chatId, "Замовлення підтверджено!", replyMarkup: replyKeyboardMarkup);
 					await _botClient.SendTextMessageAsync(SD.GroupChatId, "Опрацьовано");
 					return;

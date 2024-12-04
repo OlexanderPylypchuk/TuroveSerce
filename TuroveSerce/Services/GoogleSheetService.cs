@@ -35,19 +35,19 @@ namespace TuroveSerce.Bot.Services
 			});
 		}
 
-		public async Task AppendOrder(string spreadsheetId, string item, string deliveryMethod, string city, string phoneNumber, string firstName, string lastName, string count, string chatId)
+		public async Task AppendOrder(string spreadsheetId, Order order)
 		{
 			var orderDetails = new List<object>
 			{
 				DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-				item,
-				deliveryMethod,
-				city,
-				phoneNumber,
-				firstName,
-				lastName,
-				count,
-				chatId
+				order.Item,
+				order.DeliveryMethod,
+				order.City,
+				order.PhoneNumber,
+				order.FirstName,
+				order.LastName,
+				order.Count,
+				order.ChatId
 			};
 			var valueRange = new ValueRange { Values = new List<IList<object>> { orderDetails } };
 
