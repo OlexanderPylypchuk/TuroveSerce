@@ -39,7 +39,7 @@ namespace TuroveSerce.Bot.Services
 		{
 			var orderDetails = new List<object>
 			{
-				DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+				DateTime.UtcNow.AddHours(2).ToString("yyyy-MM-dd HH:mm:ss"),
 				order.Item,
 				order.DeliveryMethod,
 				order.City,
