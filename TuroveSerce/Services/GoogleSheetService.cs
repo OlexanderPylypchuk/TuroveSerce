@@ -47,6 +47,7 @@ namespace TuroveSerce.Bot.Services
 				order.FirstName,
 				order.LastName,
 				order.Count,
+				order.ReferalCode,
 				order.ChatId
 			};
 			var valueRange = new ValueRange { Values = new List<IList<object>> { orderDetails } };

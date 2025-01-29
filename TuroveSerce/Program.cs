@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Text;
+using System.Text.RegularExpressions;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
@@ -100,6 +101,7 @@ namespace TuroveSerce.Bot
 					string phoneNumber = ExtractDetail(caption, @"(?<=Номер телефону:\s)(0\d{9})(?=\n|$)");
 					string firstName = ExtractDetail(caption, @"(?<=Ім('|’)я:\s)(.*?)(?=\n|$)");
 					string lastName = ExtractDetail(caption, @"(?<=Прізвище:\s)(.*?)(?=\n|$)");
+					string referalCode = ExtractDetail(caption, @"(?<=Реферальний код:\s)(.*?)(?=\n|$)");
 
 					Order order = new Order()
 					{ 
@@ -139,7 +141,8 @@ namespace TuroveSerce.Bot
 						"Номер телефону: у такому форматі (0980000000)\n" +
 						"Ім'я: (Ваше імя)\n" +
 						"Прізвище: (Ваше Прізвище)\n"+
-						"Кількість товару: (Кількість товару в шт)", replyMarkup:new ReplyKeyboardRemove());
+						"Кількість товару: (Кількість товару в шт)\n" +
+						"(Не обов'язково)Реферальний код: (Реферальний код)", replyMarkup:new ReplyKeyboardRemove());
 					return;
 				}
 				if (update.Message.Text == "/start")
@@ -156,7 +159,8 @@ namespace TuroveSerce.Bot
 						"Номер телефону: 0980000000\r\n" +
 						"Ім'я: Ісус\r\n" +
 						"Прізвище: Христос\r\n" +
-						"Кількість товару: 1", replyMarkup: new ReplyKeyboardRemove());
+						"Кількість товару: 1\r\n" +
+						"(Не обов'язково)Реферальний код: ААА111", replyMarkup: new ReplyKeyboardRemove());
 					return;
 				}
 				string message = $"{update.Message.Text}\n" +
@@ -200,6 +204,7 @@ namespace TuroveSerce.Bot
 			string city = ExtractDetail(caption, @"(?<=Населений пункт:\s)(.*?)(?=\n|$)");
 			string phoneNumber = ExtractDetail(caption, @"(?<=Номер телефону:\s)(0\d{9})(?=\n|$)");
 			string item = ExtractDetail(caption, @"(?<=Назва товару:\s)(.*?)(?=\n|$)");
+			string referalCode = ExtractDetail(caption, @"(?<=Реферальний код:\s)(.*?)(?=\n|$)");
 
 			if (string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName)
 				|| string.IsNullOrEmpty(city) || string.IsNullOrEmpty(phoneNumber)
@@ -212,17 +217,22 @@ namespace TuroveSerce.Bot
 
 			var paymentImage = update.Message.Photo.Last();
 
-			string message = $"Замовлення отримано:\n" +
-							 $"Назва товару: {item}\n" +
-							 $"Місце отримання: {deliveryMethod}\n" +
-							 $"Населений пункт: {city}\n" +
-							 $"Номер телефону: {phoneNumber}\n" +
-							 $"Ім'я: {firstName}\n" +
-							 $"Прізвище: {lastName}\n" +
-							 $"Кількість товару: {count}\n" +
-							 $"@{update.Message.Chat.Username}, {update.Message.Chat.FirstName} {update.Message.Chat.LastName} #{update.Message.Chat.Id}";
+			StringBuilder sb = new StringBuilder();
+			sb.Append($"Замовлення отримано:\n");
+			sb.Append($"Назва товару: {item}\n");
+			sb.Append($"Місце отримання: {deliveryMethod}\n");
+			sb.Append($"Населений пункт: {city}\n");
+			sb.Append($"Номер телефону: {phoneNumber}\n");
+			sb.Append($"Ім'я: {firstName}\n");
+			sb.Append($"Прізвище: {lastName}\n");
+			sb.Append($"Кількість товару: {count}\n");
+			if (!string.IsNullOrEmpty(referalCode))
+			{
+				sb.AppendLine($"Реферальний код: {referalCode}");
+			}
+			sb.Append($"@{update.Message.Chat.Username}, {update.Message.Chat.FirstName} {update.Message.Chat.LastName} #{update.Message.Chat.Id}");
 
-			await _botClient.SendPhotoAsync(SD.GroupChatId, InputFile.FromFileId(paymentImage.FileId), caption: message);
+			await _botClient.SendPhotoAsync(SD.GroupChatId, InputFile.FromFileId(paymentImage.FileId), caption: sb.ToString());
 			await _botClient.SendTextMessageAsync(chatId, "Ваше замовлення отримано та передано адміністратору.", replyMarkup: replyKeyboardMarkup);
 		}
 

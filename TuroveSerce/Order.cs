@@ -15,6 +15,7 @@ namespace TuroveSerce.Bot
 		public string FirstName { get; set; }
 		public string LastName { get; set; }
 		public string Count { get; set; }
+		public string ReferalCode { get; set; }
 		public string ChatId { get; set; }
 	}
 }
