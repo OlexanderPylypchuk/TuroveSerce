@@ -112,6 +112,7 @@ namespace TuroveSerce.Bot
 						FirstName = firstName,
 						LastName = lastName,
 						Count = count,
+						ReferalCode = referalCode,
 						ChatId = chatId
 					};
 
@@ -142,7 +143,7 @@ namespace TuroveSerce.Bot
 						"Ім'я: (Ваше імя)\n" +
 						"Прізвище: (Ваше Прізвище)\n"+
 						"Кількість товару: (Кількість товару в шт)\n" +
-						"(Не обов'язково)Реферальний код: (Реферальний код)", replyMarkup:new ReplyKeyboardRemove());
+						"Реферальний код: (При наявності)", replyMarkup:new ReplyKeyboardRemove());
 					return;
 				}
 				if (update.Message.Text == "/start")
